@@ -4,7 +4,8 @@ export enum GameState {
   LEVEL_ACTIVE = 'LEVEL_ACTIVE',
   COACHING = 'COACHING',
   SUMMARY = 'SUMMARY',
-  DASHBOARD = 'DASHBOARD'
+  DASHBOARD = 'DASHBOARD',
+  HISTORY = 'HISTORY'
 }
 
 export interface DomainScores {
@@ -20,6 +21,14 @@ export interface CognitiveProfile {
   cii: number;
   scores: DomainScores;
   thinkingStyle: string;
+}
+
+export interface HistoryEntry {
+  levelNumber: number;
+  timestamp: number;
+  cii: number;
+  feedback: CoachingFeedback;
+  title: string;
 }
 
 export interface Question {

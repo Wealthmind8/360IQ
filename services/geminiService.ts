@@ -5,15 +5,21 @@ import { Level, CoachingFeedback, UserResponse, CognitiveProfile } from "../type
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+// Using gemini-3-flash-preview for sub-10s response latency
+const PREFERRED_MODEL = 'gemini-3-flash-preview';
+
 export const generateLevelContent = async (levelNumber: number, currentProfile: CognitiveProfile): Promise<Level> => {
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview',
+    model: PREFERRED_MODEL,
     contents: `Generate Level ${levelNumber} for IQ360. The user's current profile is: ${JSON.stringify(currentProfile)}. 
     Ensure it aligns with the tier architecture (Tier ${Math.ceil(levelNumber / 3)}).
+    Focus on high-impact scenarios.
     Return the response in JSON format.`,
     config: {
       systemInstruction: SYSTEM_PROMPT,
       responseMimeType: "application/json",
+      // Optimization: Disable thinking for maximum speed as per user request for 6-10s load
+      thinkingConfig: { thinkingBudget: 0 },
       responseSchema: {
         type: Type.OBJECT,
         properties: {
@@ -47,7 +53,7 @@ export const processLevelResponses = async (
   currentProfile: CognitiveProfile
 ): Promise<CoachingFeedback> => {
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview',
+    model: PREFERRED_MODEL,
     contents: `Analyze user responses for Level ${levelId}. 
     Responses: ${JSON.stringify(responses)}. 
     Current Profile: ${JSON.stringify(currentProfile)}. 
@@ -57,6 +63,8 @@ export const processLevelResponses = async (
     config: {
       systemInstruction: SYSTEM_PROMPT,
       responseMimeType: "application/json",
+      // Optimization: Disable thinking for maximum speed
+      thinkingConfig: { thinkingBudget: 0 },
       responseSchema: {
         type: Type.OBJECT,
         properties: {
